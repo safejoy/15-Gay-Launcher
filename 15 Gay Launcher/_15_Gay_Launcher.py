@@ -80,7 +80,7 @@ def show_home():
     for widget in content_frame.winfo_children():
         widget.destroy()
 
-    title_label = tk.Label(content_frame, text="Welcome to My RPG Adventure!", font=("Arial", 16))
+    title_label = tk.Label(content_frame, text="Potions Panic!", font=("Arial", 16))
     title_label.pack(pady=20)
 
     launch_button = tk.Button(content_frame, text="Launch Game", command=launch_game, font=("Arial", 12), bg="#4CAF50", fg="white")
@@ -132,10 +132,13 @@ home_btn.pack(fill="x", pady=5)
 ann_btn = tk.Button(sidebar, text="📰 Announcements", command=show_announcements, bg="#34495e", fg="white", relief="flat")
 ann_btn.pack(fill="x", pady=5)
 
-web_btn = tk.Button(sidebar, text="🌐 Studio Website", command=lambda: open_link("https://yourstudio.com"), bg="#34495e", fg="white", relief="flat")
+web_btn = tk.Button(sidebar, text="🌐 Studio Website", command=lambda: open_link("https://15.gay/"), bg="#34495e", fg="white", relief="flat")
 web_btn.pack(fill="x", pady=5)
 
-social_btn = tk.Button(sidebar, text="🐦 Twitter", command=lambda: open_link("https://twitter.com/yourstudio"), bg="#34495e", fg="white", relief="flat")
+social_btn = tk.Button(sidebar, text="☁️ BlueSky", command=lambda: open_link("https://bsky.app/profile/15gay.itch.io"), bg="#34495e", fg="white", relief="flat")
+social_btn.pack(fill="x", pady=5)
+
+social_btn = tk.Button(sidebar, text="👾 Itch", command=lambda: open_link("https://15gay.itch.io/"), bg="#34495e", fg="white", relief="flat")
 social_btn.pack(fill="x", pady=5)
 
 # Start on home screen
