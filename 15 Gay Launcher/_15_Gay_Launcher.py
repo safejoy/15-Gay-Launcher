@@ -65,10 +65,14 @@ def show_announcements():
     ann_text = tk.Text(content_frame, wrap="word", font=("Arial", 10), width=50, height=10)
     ann_text.insert("1.0", 
         "📢 Latest News:\n\n"
-        "- Version 1.1 Patch released!\n"
-        "- Fixed bugs with the quest log.\n"
-        "- Added new dungeons in the forest area.\n\n"
-        "Stay tuned for more updates!"
+        "- Version 0.1 Launcher released!\n"
+        "- Added basic features.\n"
+        "- Updating colors.\n\n"
+        "- Future Plans:\n"
+        "- More customization options.\n\n"
+
+        "Stay tuned for more updates!\n"
+        "Follow us on BlueSky and Itch for the latest news!"
     )
     ann_text.config(state="disabled")  # Read-only
     ann_text.pack(pady=10)
@@ -86,7 +90,7 @@ def show_home():
     launch_button = tk.Button(content_frame, text="Launch Game", command=launch_game, font=("Arial", 12), bg="#4CAF50", fg="white")
     launch_button.pack(pady=10)
 
-    info_label = tk.Label(content_frame, text="Click 'Launch Game' to begin your journey.", font=("Arial", 10))
+    info_label = tk.Label(content_frame, text="A cute RPG game about potions, love, and frogs", font=("Arial", 10))
     info_label.pack(pady=5)
 
     # ------------------------------
@@ -105,7 +109,7 @@ def show_home():
 # MAIN WINDOW
 # ------------------------------
 root = tk.Tk()
-root.title("My Awesome RPG Maker Launcher")
+root.title("15 Gay Launcher")
 root.geometry("600x400")
 
 # Create main layout: Sidebar + Content
