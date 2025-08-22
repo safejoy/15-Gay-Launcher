@@ -37,7 +37,7 @@ def save_settings():
 # GAME LAUNCH FUNCTION
 # ------------------------------
 def launch_game():
-    game_path = "Game.exe"  # Replace with your game's actual path
+    game_path = "\Games\joy_bloom.py"  # Replace with your game's actual path
     try:
         subprocess.Popen([game_path])
         # root.destroy()  # Uncomment if you want launcher to close after game starts
