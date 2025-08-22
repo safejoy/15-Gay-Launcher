@@ -1,4 +1,4 @@
-![LauncherScreenShot](https://github.com/safejoy/15-Gay-Launcher/blob/master/Images/Screenshot_233.png)
+![Launcher Screen Shot](https://github.com/safejoy/15-Gay-Launcher/blob/master/Images/Screenshot_233.png)
 
 # 15 Gay Launcher
 
