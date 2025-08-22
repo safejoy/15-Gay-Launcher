@@ -37,7 +37,7 @@ def save_settings():
 # GAME LAUNCH FUNCTION
 # ------------------------------
 def launch_game():
-    game_path = "\15 Gay Launcher\Games\Ace\Game.exe"  # Replace with your game's actual path
+    game_path = "Game.exe"  # Replace with your game's actual path
     try:
         subprocess.Popen([game_path])
         # root.destroy()  # Uncomment if you want launcher to close after game starts
@@ -59,7 +59,7 @@ def show_announcements():
     for widget in content_frame.winfo_children():
         widget.destroy()
 
-    ann_title = tk.Label(content_frame, text="Game Announcements", font=("Arial", 14, "bold"))
+    ann_title = tk.Label(content_frame, text="Game Announcements", font=("Arcadepix", 11, "bold"))
     ann_title.pack(pady=10)
 
     ann_text = tk.Text(content_frame, wrap="word", font=("Arial", 10), width=50, height=10)
@@ -87,7 +87,7 @@ def show_home():
     title_label = tk.Label(content_frame, text="Potions Panic!", font=("Arial", 16))
     title_label.pack(pady=20)
 
-    launch_button = tk.Button(content_frame, text="Launch Game", command=launch_game, font=("Arial", 12), bg="#4CAF50", fg="white")
+    launch_button = tk.Button(content_frame, text="Launch Game", command=launch_game, font=("Arcadepix", 12), bg="#4CAF50", fg="white")
     launch_button.pack(pady=10)
 
     info_label = tk.Label(content_frame, text="A cute RPG game about potions, love, and frogs", font=("Arial", 10))
