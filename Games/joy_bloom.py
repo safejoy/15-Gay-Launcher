@@ -27,7 +27,7 @@ MAX_FLOWERS_ON_SCREEN = 100
 
 # URLs to open on finish
 RICKROLL_URL = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-YOUR_URL = "https://example.com"  # <- put your site or game page here
+YOUR_URL = "https://15gay.itch.io"  # <- put your site or game page here
 
 TITLE = "Joy Blooms"
 
@@ -239,7 +239,7 @@ def main():
                     webbrowser.open(RICKROLL_URL, new=2)
                 except Exception:
                     pass
-                if YOUR_URL and YOUR_URL.strip() != "https://example.com":
+                if YOUR_URL and YOUR_URL.strip() != "https://15gay.itch.io":
                     try:
                         webbrowser.open(YOUR_URL, new=2)
                     except Exception:
