@@ -72,7 +72,7 @@ def show_announcements():
         "- More customization options.\n\n"
 
         "Stay tuned for more updates!\n"
-        "Follow us on BlueSky and Itch for the latest news!"
+        "Follow us on BlueSky, and Itch for the latest news!"
     )
     ann_text.config(state="disabled")  # Read-only
     ann_text.pack(pady=10)
@@ -84,13 +84,13 @@ def show_home():
     for widget in content_frame.winfo_children():
         widget.destroy()
 
-    title_label = tk.Label(content_frame, text="Potions Panic!", font=("Arial", 16))
+    title_label = tk.Label(content_frame, text="Game Title", font=("Arial", 16))
     title_label.pack(pady=20)
 
     launch_button = tk.Button(content_frame, text="Launch Game", command=launch_game, font=("Arcadepix", 12), bg="#4CAF50", fg="white")
     launch_button.pack(pady=10)
 
-    info_label = tk.Label(content_frame, text="A cute RPG game about potions, love, and frogs", font=("Arial", 10))
+    info_label = tk.Label(content_frame, text="A cute RPG game descripition.", font=("Arial", 10))
     info_label.pack(pady=5)
 
     # ------------------------------
