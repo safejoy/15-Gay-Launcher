@@ -19,12 +19,12 @@ MAX_FLOWERS_ON_SCREEN = 100
 
 TITLE = "Joy Bloom"
 VERSION = "v1.0"
-EDITOR = "Edited by Joy"
+EDITOR = "By Joy"
 
 # sound/music files (place in same folder)
-CLICK_SOUND = "click.wav"
-POP_SOUND = "pop.wav"
-BGM = "bgm.mp3"
+CLICK_SOUND = "Games/click.wav"
+POP_SOUND = "Games/pop.wav"
+BGM = "Games/bgm.mp3"
 SCORES_FILE = "highscores.json"
 
 # =======================
@@ -227,8 +227,9 @@ class Game:
             self.draw_button("Main Menu",WINDOW_H//2+100)
 
         elif self.state==SETTINGS:
-            txt=self.big_font.render("Settings",True,(255,255,255))
+            txt=self.big_font.render("How To",True,(255,255,255))
             self.screen.blit(txt,(WINDOW_W//2-txt.get_width()//2,150))
+            c1=self.font.render("Click on the flowers to pop them and get a high score.",True,(220,220,220))
             self.draw_button("Back",WINDOW_H-80)
 
         elif self.state==SCORES:
