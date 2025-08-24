@@ -5,7 +5,7 @@ import pygame
 # CONFIG
 # =======================
 WINDOW_W, WINDOW_H = 960, 600
-GAME_DURATION_SEC = 120
+GAME_DURATION_SEC = 30
 
 TITLE   = "Joy Bloom"
 VERSION = "v1.2"
@@ -314,7 +314,7 @@ class Game:
             self.play_sound(self.click_snd)
             y0 = WINDOW_H // 2 - 100
             if self.button_rect("Play", y0).collidepoint(pos):            self.start_game()
-           # elif self.button_rect("Settings", y0 + 60).collidepoint(pos): self.state = SETTINGS
+            elif self.button_rect("Settings", y0 + 60).collidepoint(pos): self.state = SETTINGS
             elif self.button_rect("High Scores", y0 + 120).collidepoint(pos): self.state = SCORES
             elif self.button_rect("Credits", y0 + 180).collidepoint(pos): self.state = CREDITS
 
@@ -413,7 +413,7 @@ class Game:
             self.screen.blit(title, (WINDOW_W // 2 - title.get_width() // 2, 100))
             y0 = WINDOW_H // 2 - 100
             self.draw_button("Play",        y0)
-           # self.draw_button("Settings",    y0 + 60)
+            self.draw_button("Settings",    y0 + 60)
             self.draw_button("High Scores", y0 + 120)
             self.draw_button("Credits",     y0 + 180)
             # Footer
