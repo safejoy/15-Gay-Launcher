@@ -1,4 +1,5 @@
 {
-    "sound": true,
-    "dash": true
+    "sound": false,
+    "dash": true,
+    "last_selected_game": "ace"
 }
