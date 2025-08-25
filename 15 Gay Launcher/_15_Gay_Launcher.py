@@ -15,7 +15,7 @@ class GameLauncher:
         self.config_file = "settings.json"
         self.games_file = "games.json"
         self.ads_folder = "ads"
-        self.music_file = "launcher_music.mp3"  # Place your music file here
+        self.music_file = "Games/bgm.mp3"  # Place your music file here
         self.current_game = None
         self.is_loading = False
         self.play_start_time = None
