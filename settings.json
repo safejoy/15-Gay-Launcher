@@ -1,5 +1,10 @@
 {
     "sound": false,
     "dash": true,
-    "last_selected_game": "ace"
+    "last_selected_game": "ace",
+    "theme": "dark",
+    "play_time_tracking": true,
+    "total_play_times": {
+        "ace": 208.96832251548767
+    }
 }
