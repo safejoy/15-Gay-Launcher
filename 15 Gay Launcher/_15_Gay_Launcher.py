@@ -262,7 +262,7 @@ class GameLauncher:
             return
             
         # Load ad configuration if exists
-        ad_config_file = os.path.join(self.ads_folder, "ads/ads_config.json")
+        ad_config_file = os.path.join(self.ads_folder, "ads_config.json")
         ad_config = {}
         if os.path.exists(ad_config_file):
             try:
@@ -364,7 +364,7 @@ class GameLauncher:
             try:
                 pygame.mixer.music.load(self.music_file)
                 pygame.mixer.music.play(-1)  # Loop indefinitely
-                pygame.mixer.music.set_volume(0.3)  # Set to 30% volume
+                pygame.mixer.music.set_volume(0.1)  # Set to 10% volume
             except Exception as e:
                 print(f"Could not play music: {e}")
 
@@ -493,13 +493,10 @@ class GameLauncher:
             game_btn.pack()
             game_btn.image = icon  # Keep reference to avoid garbage collection
             
-            # Game name label
-            name_label = tk.Label(game_frame, text=game_info["name"][:12] + "..." if len(game_info["name"]) > 12 else game_info["name"], 
-                                font=("Arial", 8, "bold"), bg=theme["bg_secondary"], fg=theme["fg_primary"],
-                                wraplength=75, justify="center")
-            name_label.pack()
+            # Create tooltip for game name on hover
+            self.create_tooltip(game_btn, game_info["name"])
             
-            # Version label
+            # Version label (smaller and more subtle)
             version_label = tk.Label(game_frame, text=f"v{game_info.get('version', '1.0.0')}", 
                                    font=("Arial", 6), bg=theme["bg_secondary"], fg=theme["fg_primary"])
             version_label.pack()
@@ -522,6 +519,37 @@ class GameLauncher:
         # Configure grid weights
         for i in range(3):
             self.games_scrollable_frame.columnconfigure(i, weight=1)
+
+    def create_tooltip(self, widget, text):
+        """Create a tooltip that shows text on hover"""
+        def on_enter(event):
+            # Create tooltip window
+            tooltip = tk.Toplevel()
+            tooltip.wm_overrideredirect(True)
+            tooltip.wm_geometry(f"+{event.x_root+10}+{event.y_root+10}")
+            
+            theme = self.themes[self.settings.get("theme", "dark")]
+            label = tk.Label(tooltip, text=text, 
+                           font=("Arial", 10, "bold"),
+                           bg=theme["bg_primary"], 
+                           fg=theme["fg_primary"],
+                           relief="solid", 
+                           bd=1,
+                           padx=8,
+                           pady=4)
+            label.pack()
+            
+            # Store tooltip reference
+            widget.tooltip = tooltip
+        
+        def on_leave(event):
+            # Destroy tooltip
+            if hasattr(widget, 'tooltip'):
+                widget.tooltip.destroy()
+                del widget.tooltip
+        
+        widget.bind("<Enter>", on_enter)
+        widget.bind("<Leave>", on_leave)
 
     def select_game(self, game_id):
         if game_id in self.games:

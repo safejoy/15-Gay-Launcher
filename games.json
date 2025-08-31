@@ -1,23 +1,26 @@
 {
     "ace": {
-        "name": "The Royal Jest",
+        "name": "The Royal Jest!",
         "description": "A thrilling adventure RPG with stunning visuals and engaging storyline.",
         "path": "Games/Ace/Game.exe",
         "version": "1.0.0",
-        "enabled": true
+        "enabled": true,
+        "icon": "Games/Ace/icon.png" 
     },
     "puzzle": {
         "name": "Frnd-Chkn",
         "description": "Challenge your mind with increasingly difficult puzzles.",
         "path": "Games/Puzzle/Game.exe",
         "version": "0.8.5",
-        "enabled": true
+        "enabled": true,
+        "icon": "Games/Ace/icon.png" 
     },
     "platformer": {
         "name": "Potions Panic!",
         "description": "A classic platformer with modern gameplay mechanics.",
         "path": "Games/Platformer/Game.exe",
         "version": "2.1.0",
-        "enabled": true
+        "enabled": true,
+        "icon": "Games/Ace/icon.png" 
     }
 }
