@@ -21,6 +21,7 @@ class GameLauncher:
         self.play_start_time = None
         self.current_ad_index = 0
         self.ad_images = []
+        self.ad_data = []  # Store ad info including clickable URLs
         
         # Initialize pygame for music
         pygame.mixer.init()
@@ -65,21 +66,48 @@ class GameLauncher:
                 "description": "A thrilling adventure RPG with stunning visuals and engaging storyline.",
                 "path": "Games/Ace/Game.exe",
                 "version": "1.0.0",
-                "enabled": True
+                "enabled": True,
+                "icon": "Games/Ace/icon.png"  # Add icon path
             },
             "puzzle": {
                 "name": "Puzzle Master", 
                 "description": "Challenge your mind with increasingly difficult puzzles.",
                 "path": "Games/Puzzle/Game.exe",
                 "version": "0.8.5",
-                "enabled": True
+                "enabled": True,
+                "icon": "Games/Puzzle/icon.png"
             },
             "platformer": {
                 "name": "Jump Quest",
                 "description": "A classic platformer with modern gameplay mechanics.",
                 "path": "Games/Platformer/Game.exe",
                 "version": "2.1.0",
-                "enabled": False
+                "enabled": False,
+                "icon": "Games/Platformer/icon.png"
+            },
+            "racing": {
+                "name": "Speed Racer",
+                "description": "High-octane racing with customizable cars.",
+                "path": "Games/Racing/Game.exe", 
+                "version": "1.5.0",
+                "enabled": True,
+                "icon": "Games/Racing/icon.png"
+            },
+            "strategy": {
+                "name": "Empire Builder",
+                "description": "Build your empire and conquer the world.",
+                "path": "Games/Strategy/Game.exe",
+                "version": "2.0.1", 
+                "enabled": True,
+                "icon": "Games/Strategy/icon.png"
+            },
+            "shooter": {
+                "name": "Space Blaster",
+                "description": "Intense space combat action.",
+                "path": "Games/Shooter/Game.exe",
+                "version": "1.3.0",
+                "enabled": True,
+                "icon": "Games/Shooter/icon.png"
             }
         }
         
@@ -105,19 +133,44 @@ class GameLauncher:
     def setup_ui(self):
         self.root = tk.Tk()
         self.root.title("15 Gay Game Launcher")
-        self.root.geometry("800x650")
+        self.root.geometry("900x700")
         
         # Create main layout
         self.main_frame = tk.Frame(self.root)
         self.main_frame.pack(fill="both", expand=True, padx=10, pady=10)
+        
+        # Top controls frame (music and settings)
+        self.top_controls = tk.Frame(self.main_frame, height=40)
+        self.top_controls.pack(fill="x", pady=(0, 10))
+        self.top_controls.pack_propagate(False)
+        
+        # Music control
+        self.music_btn = tk.Button(self.top_controls, text="🎵", width=3, height=1, 
+                                  command=self.toggle_music, relief="flat")
+        self.music_btn.pack(side="left", padx=(5, 10))
+        
+        # Settings control  
+        self.settings_btn = tk.Button(self.top_controls, text="⚙️", width=3, height=1,
+                                     command=self.show_settings, relief="flat")
+        self.settings_btn.pack(side="left")
+        
+        # Theme selector
+        theme_label = tk.Label(self.top_controls, text="Theme:", font=("Arial", 9))
+        theme_label.pack(side="left", padx=(20, 5))
+        
+        self.theme_combo = ttk.Combobox(self.top_controls, width=8, state="readonly")
+        self.theme_combo['values'] = ('dark', 'light')
+        self.theme_combo.pack(side="left")
+        self.theme_combo.bind("<<ComboboxSelected>>", self.on_theme_change)
         
         # Ad banner area (320x50)
         self.ad_frame = tk.Frame(self.main_frame, height=50)
         self.ad_frame.pack(fill="x", pady=(0, 10))
         self.ad_frame.pack_propagate(False)
         
-        self.ad_label = tk.Label(self.ad_frame, text="Loading ads...", font=("Arial", 10))
+        self.ad_label = tk.Label(self.ad_frame, text="Loading ads...", font=("Arial", 10), cursor="hand2")
         self.ad_label.pack(expand=True)
+        self.ad_label.bind("<Button-1>", self.on_ad_click)
         
         # Content area frame
         self.content_wrapper = tk.Frame(self.main_frame)
@@ -129,7 +182,7 @@ class GameLauncher:
         self.nav_sidebar.pack_propagate(False)
         
         # Right sidebar for game selection  
-        self.game_sidebar = tk.Frame(self.content_wrapper, width=180)
+        self.game_sidebar = tk.Frame(self.content_wrapper, width=280)
         self.game_sidebar.pack(side="right", fill="y", padx=(5, 0))
         self.game_sidebar.pack_propagate(False)
         
@@ -152,12 +205,11 @@ class GameLauncher:
         self.nav_title = tk.Label(self.nav_sidebar, text="Navigation", font=("Arial", 12, "bold"))
         self.nav_title.pack(pady=10)
         
-        # Navigation buttons
+        # Navigation buttons (removed settings)
         self.nav_buttons = []
         buttons = [
             ("🏠 Home", self.show_home),
             ("📰 Announcements", self.show_announcements),
-            ("⚙️ Settings", self.show_settings),
             ("🌐 Studio Website", lambda: self.open_link("https://15.gay/")),
             ("☁️ BlueSky", lambda: self.open_link("https://bsky.app/profile/15gay.itch.io")),
             ("👾 Itch", lambda: self.open_link("https://15gay.itch.io/"))
@@ -183,7 +235,7 @@ class GameLauncher:
         self.games_title = tk.Label(self.game_sidebar, text="Available Games", font=("Arial", 12, "bold"))
         self.games_title.pack(pady=10)
         
-        # Scrollable frame for games
+        # Scrollable frame for games grid
         self.games_canvas = tk.Canvas(self.game_sidebar, highlightthickness=0)
         self.games_scrollbar = ttk.Scrollbar(self.game_sidebar, orient="vertical", command=self.games_canvas.yview)
         self.games_scrollable_frame = tk.Frame(self.games_canvas)
@@ -200,16 +252,28 @@ class GameLauncher:
         self.games_scrollbar.pack(side="right", fill="y")
 
     def load_ads(self):
-        """Load banner ad images from ads folder"""
+        """Load banner ad images from ads folder - limit to 6 ads"""
         self.ad_images = []
+        self.ad_data = []
+        
         if not os.path.exists(self.ads_folder):
             os.makedirs(self.ads_folder)
-            # Create a default ad image if folder is empty
-            self.create_default_ad()
+            self.create_default_ads()
             return
             
+        # Load ad configuration if exists
+        ad_config_file = os.path.join(self.ads_folder, "ads_config.json")
+        ad_config = {}
+        if os.path.exists(ad_config_file):
+            try:
+                with open(ad_config_file, "r") as f:
+                    ad_config = json.load(f)
+            except:
+                pass
+        
+        ad_count = 0
         for filename in os.listdir(self.ads_folder):
-            if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
+            if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')) and ad_count < 6:
                 try:
                     image_path = os.path.join(self.ads_folder, filename)
                     img = Image.open(image_path)
@@ -217,33 +281,82 @@ class GameLauncher:
                     img = img.resize((320, 50), Image.Resampling.LANCZOS)
                     photo = ImageTk.PhotoImage(img)
                     self.ad_images.append(photo)
+                    
+                    # Get URL for this ad from config, default to studio website
+                    ad_url = ad_config.get(filename, "https://15.gay/")
+                    self.ad_data.append({
+                        "image": photo,
+                        "url": ad_url,
+                        "filename": filename
+                    })
+                    
+                    ad_count += 1
                 except Exception as e:
                     print(f"Error loading ad image {filename}: {e}")
         
-        if not self.ad_images:
-            self.create_default_ad()
+        if not self.ad_data:
+            self.create_default_ads()
 
-    def create_default_ad(self):
-        """Create a default ad if no images are found"""
-        # Create a simple default ad
-        img = Image.new('RGB', (320, 50), color='#3498db')
-        photo = ImageTk.PhotoImage(img)
-        self.ad_images.append(photo)
+    def create_default_ads(self):
+        """Create 6 default ads if no images are found"""
+        default_ads = [
+            {"text": "Visit 15.gay Studio!", "color": "#3498db", "url": "https://15.gay/"},
+            {"text": "Follow on BlueSky!", "color": "#1da1f2", "url": "https://bsky.app/profile/15gay.itch.io"},
+            {"text": "Check out our Itch!", "color": "#fa5c5c", "url": "https://15gay.itch.io/"},
+            {"text": "Play More Games!", "color": "#27ae60", "url": "https://15.gay/"},
+            {"text": "Support Indie Devs!", "color": "#9b59b6", "url": "https://15.gay/"},
+            {"text": "Game Development!", "color": "#f39c12", "url": "https://15.gay/"}
+        ]
+        
+        for i, ad_info in enumerate(default_ads):
+            # Create a simple colored ad
+            img = Image.new('RGB', (320, 50), color=ad_info["color"])
+            photo = ImageTk.PhotoImage(img)
+            self.ad_images.append(photo)
+            self.ad_data.append({
+                "image": photo,
+                "url": ad_info["url"],
+                "filename": f"default_ad_{i}.png"
+            })
+
+    def on_ad_click(self, event):
+        """Handle ad click to open URL"""
+        if self.ad_data and 0 <= self.current_ad_index < len(self.ad_data):
+            url = self.ad_data[self.current_ad_index]["url"]
+            webbrowser.open(url)
 
     def start_ad_rotation(self):
         """Start rotating ads every 5 seconds"""
         def rotate_ads():
             while True:
-                if self.ad_images:
+                if self.ad_data:
                     try:
-                        self.ad_label.configure(image=self.ad_images[self.current_ad_index], text="")
-                        self.current_ad_index = (self.current_ad_index + 1) % len(self.ad_images)
+                        current_ad = self.ad_data[self.current_ad_index]
+                        self.ad_label.configure(image=current_ad["image"], text="")
+                        self.current_ad_index = (self.current_ad_index + 1) % len(self.ad_data)
                     except:
                         pass
                 time.sleep(5)  # Rotate every 5 seconds
         
         ad_thread = threading.Thread(target=rotate_ads, daemon=True)
         ad_thread.start()
+
+    def toggle_music(self):
+        """Toggle music on/off"""
+        self.settings["sound"] = not self.settings.get("sound", True)
+        if self.settings["sound"]:
+            self.music_btn.configure(text="🎵")
+            self.start_music()
+        else:
+            self.music_btn.configure(text="🔇")
+            self.stop_music()
+        self.save_settings()
+
+    def on_theme_change(self, event=None):
+        """Handle theme change"""
+        self.settings["theme"] = self.theme_combo.get()
+        self.apply_theme()
+        self.save_settings()
 
     def start_music(self):
         """Start playing background music if enabled"""
@@ -269,6 +382,7 @@ class GameLauncher:
         # Main window and frames
         self.root.configure(bg=theme["bg_primary"])
         self.main_frame.configure(bg=theme["bg_primary"])
+        self.top_controls.configure(bg=theme["bg_primary"])
         self.content_wrapper.configure(bg=theme["bg_primary"])
         self.nav_sidebar.configure(bg=theme["bg_secondary"])
         self.game_sidebar.configure(bg=theme["bg_secondary"])
@@ -283,6 +397,12 @@ class GameLauncher:
         self.games_scrollable_frame.configure(bg=theme["bg_secondary"])
         self.ad_label.configure(bg=theme["bg_primary"], fg=theme["fg_primary"])
         self.loading_label.configure(bg=theme["bg_primary"], fg=theme["fg_primary"])
+        
+        # Top controls
+        self.music_btn.configure(bg=theme["accent"], fg=theme["fg_primary"], 
+                                activebackground=theme["success"], activeforeground=theme["fg_primary"])
+        self.settings_btn.configure(bg=theme["accent"], fg=theme["fg_primary"], 
+                                   activebackground=theme["success"], activeforeground=theme["fg_primary"])
         
         # Navigation buttons
         for btn in self.nav_buttons:
@@ -327,19 +447,25 @@ class GameLauncher:
         
         with open(self.config_file, "w") as f:
             json.dump(self.settings, f, indent=4)
-        
-        # Apply theme changes immediately
-        self.apply_theme()
-        
-        # Handle music based on sound setting
-        if self.sound_var.get():
-            self.start_music()
-        else:
-            self.stop_music()
 
     def save_games(self):
         with open(self.games_file, "w") as f:
             json.dump(self.games, f, indent=4)
+
+    def create_game_icon(self, game_info):
+        """Create or load game icon"""
+        icon_path = game_info.get("icon")
+        if icon_path and os.path.exists(icon_path):
+            try:
+                img = Image.open(icon_path)
+                img = img.resize((75, 75), Image.Resampling.LANCZOS)
+                return ImageTk.PhotoImage(img)
+            except:
+                pass
+        
+        # Create default icon with game initial
+        img = Image.new('RGB', (75, 75), color='#3498db')
+        return ImageTk.PhotoImage(img)
 
     def update_game_sidebar(self):
         # Clear existing game buttons
@@ -348,35 +474,54 @@ class GameLauncher:
         
         theme = self.themes[self.settings.get("theme", "dark")]
         
-        for game_id, game_info in self.games.items():
-            if not game_info.get("enabled", True):
-                continue
-                
-            # Create game button frame
+        # Create grid of games (3 columns)
+        enabled_games = [(gid, ginfo) for gid, ginfo in self.games.items() if ginfo.get("enabled", True)]
+        
+        row = 0
+        col = 0
+        for game_id, game_info in enabled_games:
+            # Create game frame
             game_frame = tk.Frame(self.games_scrollable_frame, bg=theme["bg_secondary"])
-            game_frame.pack(fill="x", pady=2, padx=5)
+            game_frame.grid(row=row, column=col, padx=5, pady=5, sticky="nsew")
             
-            # Game button
-            game_btn = tk.Button(game_frame, text=game_info["name"], 
+            # Game icon button
+            icon = self.create_game_icon(game_info)
+            game_btn = tk.Button(game_frame, image=icon, 
                                command=lambda gid=game_id: self.select_game(gid),
-                               bg=theme["accent"], fg=theme["fg_primary"], relief="flat", font=("Arial", 9, "bold"),
-                               activebackground=theme["success"], activeforeground=theme["fg_primary"])
-            game_btn.pack(fill="x", pady=1)
+                               bg=theme["bg_secondary"], relief="flat", bd=1,
+                               activebackground=theme["accent"])
+            game_btn.pack()
+            game_btn.image = icon  # Keep reference to avoid garbage collection
             
-            # Version and playtime labels
+            # Game name label
+            name_label = tk.Label(game_frame, text=game_info["name"][:12] + "..." if len(game_info["name"]) > 12 else game_info["name"], 
+                                font=("Arial", 8, "bold"), bg=theme["bg_secondary"], fg=theme["fg_primary"],
+                                wraplength=75, justify="center")
+            name_label.pack()
+            
+            # Version label
             version_label = tk.Label(game_frame, text=f"v{game_info.get('version', '1.0.0')}", 
-                                   font=("Arial", 7), bg=theme["bg_secondary"], fg=theme["fg_primary"])
+                                   font=("Arial", 6), bg=theme["bg_secondary"], fg=theme["fg_primary"])
             version_label.pack()
             
-            # Show playtime if tracking is enabled
+            # Play time label
             if self.settings.get("play_time_tracking", True):
                 playtime = self.settings.get("total_play_times", {}).get(game_id, 0)
                 hours = int(playtime // 3600)
                 minutes = int((playtime % 3600) // 60)
-                time_text = f"Played: {hours}h {minutes}m"
+                time_text = f"{hours}h {minutes}m" if hours > 0 else f"{minutes}m"
                 time_label = tk.Label(game_frame, text=time_text, font=("Arial", 6), 
                                     bg=theme["bg_secondary"], fg=theme["fg_primary"])
                 time_label.pack()
+            
+            col += 1
+            if col >= 3:  # 3 games per row
+                col = 0
+                row += 1
+        
+        # Configure grid weights
+        for i in range(3):
+            self.games_scrollable_frame.columnconfigure(i, weight=1)
 
     def select_game(self, game_id):
         if game_id in self.games:
@@ -558,35 +703,45 @@ class GameLauncher:
         ann_text = tk.Text(self.content_frame, wrap="word", font=("Arial", 11), 
                          width=70, height=15, bg="white", relief="solid", bd=1)
         
-        announcements = """🎉 Welcome to the Enhanced Game Launcher v2.0!
+        announcements = """🎉 Welcome to the Enhanced Game Launcher v3.0!
 
-🔥 What's New in Version 2.0:
-• Dark/Light theme support for personalized experience
-• Play time tracking to monitor your gaming habits
-• Background music system (place your music as 'launcher_music.mp3')
-• Custom banner ad rotation system (add 320x50 images to 'ads' folder)
-• Fake loading screen for that authentic retro feel
-• Enhanced UI with better navigation and exit button
+🔥 What's New in Version 3.0:
+• Clickable ad banner system (6 rotating ads max)
+• Grid-based game selection with 75x75 icons
+• Streamlined top controls for music and settings
+• Enhanced theme switching in top bar
+• Expanded game library with 6 default games
+• Improved navigation without cluttered settings menu
 
 🎮 Available Games:
 • Ace Adventure - Our flagship RPG experience
 • Puzzle Master - Brain-teasing puzzle challenges  
 • Jump Quest - Classic platforming action
+• Speed Racer - High-octane racing thrills
+• Empire Builder - Strategic conquest gameplay
+• Space Blaster - Intense space combat
+
+📺 Ad System:
+Place up to 6 banner images (320x50) in the 'ads' folder. Create an 'ads_config.json' file to set clickable URLs for each ad:
+{
+  "ad1.png": "https://example.com",
+  "ad2.png": "https://another-site.com"
+}
+
+🎵 Music Control:
+Click the music button in the top-left to toggle background music on/off instantly!
+
+⚙️ Settings:
+Access settings via the gear icon next to the music control for a cleaner interface.
+
+🎨 Themes:
+Switch between dark and light themes using the dropdown in the top bar.
 
 ⏱️ Play Time Tracking:
-Track how long you spend in each game! Stats are saved and displayed in the game selection sidebar.
-
-🎵 Music System:
-Add your favorite keygen-style music as 'launcher_music.mp3' in the launcher folder for that nostalgic experience!
-
-📋 Upcoming Features:
-• Achievement tracking
-• Cloud save synchronization
-• More theme options
-• Advanced statistics
+See how long you've played each game right in the grid view and detailed stats on the home screen.
 
 💬 Stay Connected:
-Follow us on BlueSky and check out our games on Itch.io for the latest updates!
+Click our rotating ads to visit our website, BlueSky, and Itch.io pages!
 
 Happy Gaming! 🎮
 """
@@ -608,32 +763,25 @@ Happy Gaming! 🎮
                                      font=("Arial", 12, "bold"), bg=theme["bg_content"], fg=theme["fg_secondary"])
         settings_frame.pack(pady=10, padx=20, fill="x")
         
-        # Sound setting
-        sound_check = tk.Checkbutton(settings_frame, text="🔊 Enable Background Music", 
-                                   variable=self.sound_var, font=("Arial", 11),
-                                   bg=theme["bg_content"], fg=theme["fg_secondary"], activebackground=theme["bg_content"],
-                                   command=self.save_settings)
-        sound_check.pack(anchor="w", padx=10, pady=5)
-        
-        # Theme setting
-        theme_frame = tk.Frame(settings_frame, bg=theme["bg_content"])
-        theme_frame.pack(anchor="w", padx=10, pady=5, fill="x")
-        
-        theme_label = tk.Label(theme_frame, text="🎨 Theme:", font=("Arial", 11),
-                             bg=theme["bg_content"], fg=theme["fg_secondary"])
-        theme_label.pack(side="left")
-        
-        theme_combo = ttk.Combobox(theme_frame, textvariable=self.theme_var, 
-                                 values=["dark", "light"], state="readonly", width=10)
-        theme_combo.pack(side="left", padx=(10, 0))
-        theme_combo.bind("<<ComboboxSelected>>", lambda e: self.save_settings())
-        
-        # Play time tracking
+        # Play time tracking (removed music setting as it's now in top bar)
         playtime_check = tk.Checkbutton(settings_frame, text="⏱️ Enable Play Time Tracking", 
                                       variable=self.play_time_var, font=("Arial", 11),
                                       bg=theme["bg_content"], fg=theme["fg_secondary"], activebackground=theme["bg_content"],
                                       command=self.save_settings)
-        playtime_check.pack(anchor="w", padx=10, pady=5)
+        playtime_check.pack(anchor="w", padx=10, pady=10)
+        
+        # Ad system info
+        ads_frame = tk.LabelFrame(self.content_frame, text="Ad System", 
+                                font=("Arial", 12, "bold"), bg=theme["bg_content"], fg=theme["fg_secondary"])
+        ads_frame.pack(pady=10, padx=20, fill="x")
+        
+        ads_info = tk.Label(ads_frame, 
+                          text="Place up to 6 banner images (320x50px) in the 'ads' folder.\n"
+                               "Create 'ads_config.json' to set clickable URLs for each ad.\n"
+                               "Ads rotate every 5 seconds and are clickable.",
+                          font=("Arial", 9), bg=theme["bg_content"], fg=theme["fg_secondary"],
+                          justify="left")
+        ads_info.pack(anchor="w", padx=10, pady=5)
         
         # Current game info
         if self.current_game:
@@ -656,6 +804,10 @@ Happy Gaming! 🎮
                 time_label.pack(anchor="w", padx=10, pady=2)
 
     def run(self):
+        # Initialize UI elements with current settings
+        self.theme_combo.set(self.settings.get("theme", "dark"))
+        self.music_btn.configure(text="🎵" if self.settings.get("sound", True) else "🔇")
+        
         # Save settings when closing
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.root.mainloop()

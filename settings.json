@@ -1,7 +1,7 @@
 {
     "sound": false,
     "dash": true,
-    "last_selected_game": "ace",
+    "last_selected_game": "platformer",
     "theme": "dark",
     "play_time_tracking": true,
     "total_play_times": {
