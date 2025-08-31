@@ -262,7 +262,7 @@ class GameLauncher:
             return
             
         # Load ad configuration if exists
-        ad_config_file = os.path.join(self.ads_folder, "ads_config.json")
+        ad_config_file = os.path.join(self.ads_folder, "ads/ads_config.json")
         ad_config = {}
         if os.path.exists(ad_config_file):
             try:
