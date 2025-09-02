@@ -1,4 +1,5 @@
 import math, random, sys, time, json, os
+from datetime import datetime
 import pygame
 
 # =======================
@@ -8,12 +9,12 @@ WINDOW_W, WINDOW_H = 960, 600
 GAME_DURATION_SEC = 30
 
 TITLE   = "Joy Bloom"
-VERSION = "v1.2"
+VERSION = "v1.3"
 EDITOR  = "By Joy"
 
 SCORES_FILE = "highscores.json"
 
-# File names (optional; the game won’t crash if missing)
+# File names (optional; the game won't crash if missing)
 CLICK_SOUND     = "Game/click.wav"
 POP_SOUND       = "Game/pop.wav"
 BGM             = "Game/bgm.mp3"
@@ -24,6 +25,7 @@ UI_FG       = (255, 255, 255)
 UI_DIM      = (200, 200, 200)
 BG_MENU     = (20, 22, 28)
 GOLD        = (255, 215, 0)
+SILVER      = (192, 192, 192)
 
 # Flower palette
 FLOWER_COLS = [
@@ -81,21 +83,45 @@ def safe_load_music(filename: str, audio_ok: bool):
             return False
     return False
 
-def load_highscore():
+def load_scores():
+    """Load high score and recent scores list."""
     try:
         if os.path.exists(SCORES_FILE):
             with open(SCORES_FILE, "r") as f:
-                return int(json.load(f).get("highscore", 0))
+                data = json.load(f)
+                highscore = data.get("highscore", 0)
+                recent_scores = data.get("recent_scores", [])
+                return int(highscore), recent_scores
     except Exception:
         pass
-    return 0
+    return 0, []
 
-def save_highscore(score: int):
+def save_score(score: int):
+    """Save a new score, update high score if needed, maintain recent scores list."""
     try:
-        current = load_highscore()
-        if score > current:
-            with open(SCORES_FILE, "w") as f:
-                json.dump({"highscore": int(score)}, f)
+        current_high, recent_scores = load_scores()
+        
+        # Add new score with timestamp
+        score_entry = {
+            "score": int(score),
+            "date": datetime.now().strftime("%Y-%m-%d %H:%M")
+        }
+        recent_scores.append(score_entry)
+        
+        # Keep only last 10 scores
+        recent_scores = recent_scores[-10:]
+        
+        # Update high score if needed
+        new_high = max(current_high, int(score))
+        
+        # Save back to file
+        data = {
+            "highscore": new_high,
+            "recent_scores": recent_scores
+        }
+        with open(SCORES_FILE, "w") as f:
+            json.dump(data, f, indent=2)
+            
     except Exception:
         pass
 
@@ -178,16 +204,18 @@ class Game:
         self.screen = pygame.display.set_mode((WINDOW_W, WINDOW_H))
 
         # Fonts
-        self.font     = pygame.font.SysFont("arial", 24)
-        self.big_font = pygame.font.SysFont("arial", 48, bold=True)
+        self.font       = pygame.font.SysFont("arial", 24)
+        self.small_font = pygame.font.SysFont("arial", 18)
+        self.big_font   = pygame.font.SysFont("arial", 48, bold=True)
 
         # State
         self.state      = MENU
         self.score      = 0
-        self.highscore  = load_highscore()
+        self.highscore, self.recent_scores = load_scores()
         self.flowers    = []  # reused for menu floaters or gameplay flowers
         self.particles  = []
         self.start_time = 0.0
+        self.pause_time = 0.0  # Track cumulative pause time
         self.sound_on   = True
         self.music_on   = True
 
@@ -212,7 +240,13 @@ class Game:
                 if e.type == pygame.QUIT:
                     pygame.quit(); sys.exit()
                 if e.type == pygame.KEYDOWN:
-                    if self.state == GAME and e.key == pygame.K_p:
+                    if e.key == pygame.K_ESCAPE:
+                        if self.state in (SETTINGS, SCORES, CREDITS, PAUSED):
+                            self.state = MENU if self.state != PAUSED else GAME
+                            self.play_sound(self.click_snd)
+                    elif self.state == GAME and e.key == pygame.K_p:
+                        self.toggle_pause()
+                    elif self.state == PAUSED and e.key in (pygame.K_p, pygame.K_SPACE, pygame.K_RETURN):
                         self.toggle_pause()
                 if e.type == pygame.MOUSEBUTTONDOWN and e.button == 1:
                     self.handle_click(e.pos)
@@ -225,8 +259,11 @@ class Game:
         self.play_sound(self.click_snd)
         if self.state == GAME:
             self.state = PAUSED
+            self.pause_start = time.time()
         elif self.state == PAUSED:
             self.state = GAME
+            # Add the pause duration to our total pause time
+            self.pause_time += time.time() - self.pause_start
 
     def play_sound(self, snd):
         if self.audio_ok and self.sound_on and snd is not None:
@@ -246,6 +283,16 @@ class Game:
         self.flowers = []
         self.particles = []
         self.start_time = time.time()
+        self.pause_time = 0.0
+
+    def get_elapsed_game_time(self):
+        """Get elapsed game time, excluding pause time."""
+        current_time = time.time()
+        if self.state == PAUSED:
+            # Don't count current pause session
+            return (self.pause_start - self.start_time) - self.pause_time
+        else:
+            return (current_time - self.start_time) - self.pause_time
 
     def button_rect(self, label: str, center_y: int):
         # Return the clickable rect (inflated) so visual & hitbox match
@@ -266,7 +313,7 @@ class Game:
     # ------------- Update / Draw per state -------------
     def update(self, dt):
         if self.state == GAME:
-            elapsed = time.time() - self.start_time
+            elapsed = self.get_elapsed_game_time()
             time_left = max(0.0, GAME_DURATION_SEC - elapsed)
 
             # Spawn flowers (cap)
@@ -290,8 +337,8 @@ class Game:
             # End game
             if time_left <= 0:
                 self.state = GAME_OVER
-                save_highscore(self.score)
-                self.highscore = load_highscore()
+                save_score(self.score)
+                self.highscore, self.recent_scores = load_scores()
 
         elif self.state == MENU:
             # Floating decorative flowers
@@ -328,6 +375,10 @@ class Game:
                         self.particles.append(Particle(pos[0], pos[1], f.color))
                     self.flowers.remove(f)
                     break
+
+        elif self.state == PAUSED:
+            # Click anywhere to unpause, or use keys
+            self.toggle_pause()
 
         elif self.state == GAME_OVER:
             self.play_sound(self.click_snd)
@@ -374,7 +425,7 @@ class Game:
         # Sky
         self.screen.fill((120, 180, 255))
         pygame.draw.rect(self.screen, (110, 200, 110), (0, WINDOW_H // 2, WINDOW_W, WINDOW_H // 2))
-        # Distant “pixels” for a field
+        # Distant "pixels" for a field
         for _ in range(220):
             x = random.randint(0, WINDOW_W - 1)
             y = random.randint(WINDOW_H // 2 + 10, WINDOW_H - 10)
@@ -393,7 +444,7 @@ class Game:
             self.screen.fill(BG_MENU)
 
     def draw_hud_timer_score(self):
-        elapsed   = time.time() - self.start_time
+        elapsed   = self.get_elapsed_game_time()
         time_left = max(0, int(GAME_DURATION_SEC - elapsed))
         mm, ss    = divmod(time_left, 60)
         score_s   = self.font.render(f"Score: {self.score}", True, UI_FG)
@@ -401,7 +452,7 @@ class Game:
         self.screen.blit(score_s, (10, 10))
         self.screen.blit(time_s,  (WINDOW_W - time_s.get_width() - 10, 10))
         # Pause hint
-        hint = self.font.render("Press P to Pause", True, UI_DIM)
+        hint = self.small_font.render("Press P to Pause", True, UI_DIM)
         self.screen.blit(hint, (10, 38))
 
     def draw(self):
@@ -440,16 +491,35 @@ class Game:
             overlay = pygame.Surface((WINDOW_W, WINDOW_H), pygame.SRCALPHA)
             overlay.fill((0, 0, 0, 140))
             self.screen.blit(overlay, (0, 0))
+            
+            # Pause text and instructions
             txt = self.big_font.render("Paused", True, UI_FG)
-            self.screen.blit(txt, (WINDOW_W // 2 - txt.get_width() // 2, WINDOW_H // 2 - txt.get_height() // 2))
+            self.screen.blit(txt, (WINDOW_W // 2 - txt.get_width() // 2, WINDOW_H // 2 - 80))
+            
+            instructions = [
+                "Press P, SPACE, or ENTER to continue",
+                "Click anywhere to unpause",
+                "Press ESC to return to menu"
+            ]
+            
+            for i, instruction in enumerate(instructions):
+                inst_text = self.small_font.render(instruction, True, UI_DIM)
+                self.screen.blit(inst_text, (WINDOW_W // 2 - inst_text.get_width() // 2, WINDOW_H // 2 - 20 + i * 25))
 
         elif self.state == GAME_OVER:
-            over = self.big_font.render("Time!", True, UI_FG)
+            over = self.big_font.render("Time's Up!", True, UI_FG)
             self.screen.blit(over, (WINDOW_W // 2 - over.get_width() // 2, 180))
             final = self.font.render(f"Final Score: {self.score}", True, (230, 230, 230))
             self.screen.blit(final, (WINDOW_W // 2 - final.get_width() // 2, 250))
-            hs = self.font.render(f"High Score: {self.highscore}", True, GOLD)
-            self.screen.blit(hs, (WINDOW_W // 2 - hs.get_width() // 2, 285))
+            
+            # Show if it's a new high score
+            if self.score == self.highscore and self.score > 0:
+                new_high_text = self.font.render("New High Score!", True, GOLD)
+                self.screen.blit(new_high_text, (WINDOW_W // 2 - new_high_text.get_width() // 2, 285))
+            else:
+                hs = self.font.render(f"High Score: {self.highscore}", True, GOLD)
+                self.screen.blit(hs, (WINDOW_W // 2 - hs.get_width() // 2, 285))
+            
             self.draw_button("Play Again", WINDOW_H // 2 + 40)
             self.draw_button("Main Menu",  WINDOW_H // 2 + 100)
 
@@ -460,24 +530,76 @@ class Game:
             self.draw_button(self.sound_label(),      260)
             self.draw_button(self.fullscreen_label(), 320)
             self.draw_button("Back",                  WINDOW_H - 80)
+            
+            # Instructions
+            esc_hint = self.small_font.render("Press ESC to go back", True, UI_DIM)
+            self.screen.blit(esc_hint, (10, WINDOW_H - 60))
 
         elif self.state == SCORES:
-            txt = self.big_font.render("High Scores", True, UI_FG)
-            self.screen.blit(txt, (WINDOW_W // 2 - txt.get_width() // 2, 140))
-            hs = self.font.render(f"High Score: {self.highscore}", True, GOLD)
-            self.screen.blit(hs, (WINDOW_W // 2 - hs.get_width() // 2, 240))
-            final = self.font.render(f"Last Score: {self.score}", True, (230, 230, 230))
-            self.screen.blit(final, (WINDOW_W // 2 - final.get_width() // 2, 290))
+            txt = self.big_font.render("Scores", True, UI_FG)
+            self.screen.blit(txt, (WINDOW_W // 2 - txt.get_width() // 2, 80))
+            
+            # Personal Best
+            pb_label = self.font.render("Personal Best:", True, UI_FG)
+            self.screen.blit(pb_label, (WINDOW_W // 2 - pb_label.get_width() // 2, 140))
+            
+            pb_score = self.font.render(f"{self.highscore}", True, GOLD)
+            self.screen.blit(pb_score, (WINDOW_W // 2 - pb_score.get_width() // 2, 170))
+            
+            # Recent Scores
+            if self.recent_scores:
+                recent_label = self.font.render("Recent Scores:", True, UI_FG)
+                self.screen.blit(recent_label, (WINDOW_W // 2 - recent_label.get_width() // 2, 220))
+                
+                y_offset = 250
+                # Show recent scores in reverse order (newest first)
+                for i, score_data in enumerate(reversed(self.recent_scores)):
+                    if i >= 8:  # Limit display to 8 recent scores to fit on screen
+                        break
+                    
+                    score_val = score_data["score"]
+                    date_str = score_data["date"]
+                    
+                    # Use gold for high scores, silver for good scores, white for others
+                    if score_val == self.highscore:
+                        color = GOLD
+                    elif score_val >= self.highscore * 0.8:
+                        color = SILVER
+                    else:
+                        color = (230, 230, 230)
+                    
+                    score_text = f"{score_val:3d}  -  {date_str}"
+                    score_surface = self.small_font.render(score_text, True, color)
+                    self.screen.blit(score_surface, (WINDOW_W // 2 - score_surface.get_width() // 2, y_offset))
+                    y_offset += 22
+            else:
+                no_scores = self.font.render("No recent scores yet!", True, UI_DIM)
+                self.screen.blit(no_scores, (WINDOW_W // 2 - no_scores.get_width() // 2, 250))
+            
             self.draw_button("Back", WINDOW_H - 80)
+            
+            # Instructions
+            esc_hint = self.small_font.render("Press ESC to go back", True, UI_DIM)
+            self.screen.blit(esc_hint, (10, WINDOW_H - 60))
 
         elif self.state == CREDITS:
             txt = self.big_font.render("Credits", True, UI_FG)
             self.screen.blit(txt, (WINDOW_W // 2 - txt.get_width() // 2, 140))
             c1  = self.font.render("Made with Joy", True, (220, 220, 220))
             c2  = self.font.render("Python + Pygame", True, (220, 220, 220))
+            c3  = self.small_font.render("Enhanced with improved pause system", True, UI_DIM)
+            c4  = self.small_font.render("and detailed score tracking", True, UI_DIM)
+            
             self.screen.blit(c1, (WINDOW_W // 2 - c1.get_width() // 2, 230))
             self.screen.blit(c2, (WINDOW_W // 2 - c2.get_width() // 2, 260))
+            self.screen.blit(c3, (WINDOW_W // 2 - c3.get_width() // 2, 290))
+            self.screen.blit(c4, (WINDOW_W // 2 - c4.get_width() // 2, 310))
+            
             self.draw_button("Back", WINDOW_H - 80)
+            
+            # Instructions
+            esc_hint = self.small_font.render("Press ESC to go back", True, UI_DIM)
+            self.screen.blit(esc_hint, (10, WINDOW_H - 60))
 
         pygame.display.flip()
 
