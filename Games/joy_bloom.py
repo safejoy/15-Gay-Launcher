@@ -6,7 +6,7 @@ import pygame
 # CONFIG
 # =======================
 WINDOW_W, WINDOW_H = 960, 600
-GAME_DURATION_SEC = 30
+GAME_DURATION_SEC = 60
 
 TITLE   = "Joy Bloom"
 VERSION = "v1.3"
