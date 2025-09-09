@@ -64,10 +64,10 @@ class GameLauncher:
             "ace": {
                 "name": "Ace Adventure",
                 "description": "A thrilling adventure RPG with stunning visuals and engaging storyline.",
-                "path": "Games/Ace/Game.exe",
+                "path": "Games/TRJ/Game.exe",
                 "version": "1.0.0",
                 "enabled": True,
-                "icon": "Games/Ace/icon.png"  # Add icon path
+                "icon": "Games/TRJ/icon.png"  # Add icon path
             },
             "puzzle": {
                 "name": "Puzzle Master", 
