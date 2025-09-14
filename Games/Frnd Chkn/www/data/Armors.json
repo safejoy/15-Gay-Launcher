@@ -1,0 +1,23 @@
+[
+null,
+{"id":1,"atypeId":5,"description":"Blocky hurty things.","etypeId":2,"traits":[{"code":22,"dataId":1,"value":0}],"iconIndex":663,"name":"Shield","note":"","params":[0,0,0,10,0,0,0,0],"price":300},
+{"id":2,"atypeId":1,"description":"It covers your head or not.","etypeId":3,"traits":[{"code":22,"dataId":1,"value":0}],"iconIndex":2014,"name":"Hood","note":"","params":[0,0,0,10,0,0,0,0],"price":300},
+{"id":3,"atypeId":1,"description":"Drapes over you and gives you a boost in magic.","etypeId":4,"traits":[{"code":22,"dataId":1,"value":0}],"iconIndex":2030,"name":"Cloak","note":"","params":[0,2,0,10,2,4,0,0],"price":300},
+{"id":4,"atypeId":1,"description":"A ring made from forging promises.","etypeId":5,"traits":[{"code":22,"dataId":1,"value":0}],"iconIndex":1846,"name":"Promise Ring","note":"","params":[0,0,3,0,13,0,0,4],"price":300},
+{"id":5,"atypeId":1,"description":"A nice looking robe to wear.","etypeId":4,"traits":[{"code":22,"dataId":1,"value":0}],"iconIndex":2174,"name":"Robes","note":"","params":[0,0,0,4,4,9,0,0],"price":190},
+{"id":6,"atypeId":1,"description":"A shield for anyone who thinks they are the hero","etypeId":2,"traits":[{"code":22,"dataId":1,"value":0}],"iconIndex":663,"name":"Ah' Kiva Shield","note":"","params":[0,0,0,11,0,0,0,-1],"price":85},
+{"id":7,"atypeId":1,"description":"Start by praying on your knees.","etypeId":5,"traits":[{"code":22,"dataId":1,"value":0}],"iconIndex":669,"name":"HOLY SH..","note":"","params":[0,0,0,12,3,12,0,0],"price":365},
+{"id":8,"atypeId":2,"description":"A very powerful wizard use to wear this.","etypeId":4,"traits":[{"code":22,"dataId":1,"value":0}],"iconIndex":2073,"name":"Robes of Ovier","note":"","params":[50,100,0,12,6,23,0,6],"price":0},
+{"id":9,"atypeId":1,"description":"Only a crazy fool would wear this","etypeId":3,"traits":[{"code":22,"dataId":1,"value":0}],"iconIndex":2078,"name":"The Mask","note":"","params":[0,0,2,24,0,0,0,0],"price":0},
+{"id":10,"atypeId":1,"description":"Makeing a retun... The Ring!","etypeId":5,"traits":[{"code":22,"dataId":1,"value":0}],"iconIndex":2061,"name":"Ring of Return","note":"","params":[0,0,4,3,0,12,0,6],"price":0},
+{"id":11,"atypeId":1,"description":"Be gay!","etypeId":4,"traits":[{"code":22,"dataId":1,"value":0},{"code":21,"dataId":7,"value":1}],"iconIndex":2107,"name":"Holy Pink Robes","note":"","params":[0,0,0,18,3,9,0,0],"price":221},
+{"id":12,"atypeId":1,"description":"Soft, cute, but hard.","etypeId":4,"traits":[{"code":22,"dataId":1,"value":0}],"iconIndex":2095,"name":"Silky Hard Dress","note":"","params":[0,0,0,19,0,4,0,0],"price":347},
+{"id":13,"atypeId":2,"description":"The cutest maid outfit","etypeId":4,"traits":[{"code":22,"dataId":1,"value":0}],"iconIndex":2085,"name":"Magii Maid Outfit","note":"","params":[0,0,0,22,3,3,1,3],"price":564},
+{"id":14,"atypeId":1,"description":"Fred would be jealous","etypeId":5,"traits":[{"code":22,"dataId":1,"value":0}],"iconIndex":2190,"name":"Magii Ascott","note":"","params":[0,0,0,14,0,11,2,11],"price":213},
+{"id":15,"atypeId":1,"description":"Each charm is filled with magic.","etypeId":5,"traits":[{"code":22,"dataId":1,"value":0}],"iconIndex":2179,"name":"Entharaled Charms","note":"","params":[2,2,9,13,6,4,0,3],"price":193},
+{"id":16,"atypeId":1,"description":"Getting closer to the battle","etypeId":2,"traits":[{"code":22,"dataId":1,"value":0}],"iconIndex":2149,"name":"Risk Taker","note":"","params":[0,0,0,27,0,3,0,2],"price":276},
+{"id":17,"atypeId":1,"description":"Looks sweet, can see into the future. Blocks hard.","etypeId":2,"traits":[{"code":22,"dataId":1,"value":0}],"iconIndex":1809,"name":"Eye Drop","note":"","params":[0,0,0,25,0,6,2,6],"price":264},
+{"id":18,"atypeId":0,"description":"","etypeId":2,"traits":[{"code":22,"dataId":1,"value":0}],"iconIndex":0,"name":"","note":"","params":[0,0,0,0,0,0,0,0],"price":0},
+{"id":19,"atypeId":0,"description":"","etypeId":2,"traits":[{"code":22,"dataId":1,"value":0}],"iconIndex":0,"name":"","note":"","params":[0,0,0,0,0,0,0,0],"price":0},
+{"id":20,"atypeId":0,"description":"","etypeId":2,"traits":[{"code":22,"dataId":1,"value":0}],"iconIndex":0,"name":"","note":"","params":[0,0,0,0,0,0,0,0],"price":0}
+]

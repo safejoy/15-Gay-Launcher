@@ -62,7 +62,7 @@ class GameLauncher:
         # Default games configuration
         self.default_games = {
             "ace": {
-                "name": "Ace Adventure",
+                "name": "The Royal Jest",
                 "description": "A thrilling adventure RPG with stunning visuals and engaging storyline.",
                 "path": "Games/TRJ/Game.exe",
                 "version": "1.0.0",
@@ -70,12 +70,12 @@ class GameLauncher:
                 "icon": "Games/TRJ/icon.png"  # Add icon path
             },
             "puzzle": {
-                "name": "Puzzle Master", 
+                "name": "Loved", 
                 "description": "Challenge your mind with increasingly difficult puzzles.",
-                "path": "Games/Puzzle/Game.exe",
+                "path": "Games/Loved/Game.exe",
                 "version": "0.8.5",
                 "enabled": True,
-                "icon": "Games/Puzzle/icon.png"
+                "icon": "Games/Loved/icon.png"
             },
             "platformer": {
                 "name": "Jump Quest",

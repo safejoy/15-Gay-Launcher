@@ -1,0 +1,6 @@
+[
+null,
+{"id":1,"battlerName":"","characterIndex":0,"characterName":"AH-People2","classId":1,"equips":[0,1,2,3,4],"faceIndex":3,"faceName":"Lilly","traits":[{"code":51,"dataId":6,"value":1},{"code":52,"dataId":2,"value":1}],"initialLevel":1,"maxLevel":99,"name":"Lilly","nickname":"","note":"","profile":"A cute little witch."},
+{"id":2,"battlerName":"","characterIndex":3,"characterName":"AH-People3","classId":2,"equips":[0,0,0,0,0],"faceIndex":2,"faceName":"skull1","traits":[],"initialLevel":1,"maxLevel":99,"name":"BBonez","nickname":"","note":"","profile":"Might be boney, but stick and stone do \nnothing."},
+{"id":3,"battlerName":"","characterIndex":2,"characterName":"AH-People4","classId":1,"equips":[0,0,0,0,0],"faceIndex":0,"faceName":"","traits":[],"initialLevel":1,"maxLevel":99,"name":"Chiky","nickname":"","note":"","profile":"The Best Chicken Ever!"}
+]

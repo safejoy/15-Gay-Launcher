@@ -1,0 +1,1 @@
+{"Scene_Title":{"Window_TitleCommand":{"x":288,"y":384,"opacity":"255","width":"240","rows":"3","cols":"1","lineHeight":"36","align":"center"}},"Scene_Battle":{"Window_BattleStatus":{"x":192,"y":444,"opacity":"255","width":"624","height":"180","rows":"4","cols":"1"},"Window_CustomPartyCommand":{"x":0,"y":444}}}
