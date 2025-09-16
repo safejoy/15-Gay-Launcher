@@ -82,7 +82,7 @@ class GameLauncher:
                 "description": "A classic platformer with modern gameplay mechanics.",
                 "path": "Games/Platformer/Game.exe",
                 "version": "2.1.0",
-                "enabled": False,
+                "enabled": True,
                 "icon": "Games/Platformer/icon.png"
             },
             "racing": {
